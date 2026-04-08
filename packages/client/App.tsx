@@ -1,52 +1,49 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { Borrower, BORROWER_FIELD_NAMES } from "shared";
+import { BORROWER_FIELD_NAMES, BorrowerFilterFields, type Borrower, type FilterableField } from "shared";
+import { useFilterStore } from "./store/filterStore";
+import { useUrlFilters } from "./hooks/useUrlFilters";
+import { searchBorrowers } from "./api";
+import { FilterBar } from "./components/FilterBar";
 
 import "./style.css";
 
-async function getBorrowers(): Promise<Borrower[]> {
-  const response = await axios.get<Borrower[]>(
-    "http://localhost:1337/borrowers",
-  );
-  return response.data;
-}
-
 function App() {
+  const { appliedFilters } = useFilterStore();
   const [borrowers, setBorrowers] = useState<Borrower[]>([]);
 
-  useEffect(() => {
-    async function fetchBorrowers() {
-      const newBorrowers = await getBorrowers();
-      setBorrowers(newBorrowers);
-    }
-    fetchBorrowers();
-  }, []);
+  useUrlFilters();
 
-  // TODO: Implement support for filters.
+  useEffect(() => {
+    searchBorrowers(appliedFilters).then(setBorrowers).catch(console.error);
+  }, [appliedFilters]);
 
   return (
-    <div>
-      <h3>Borrowers</h3>
-
-      <table>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Borrowers</h1>
+      <FilterBar />
+      <table className="w-full text-sm border-collapse">
         <thead>
           <tr>
-            {BORROWER_FIELD_NAMES.map((columnKey) => (
-              <th key={columnKey}>{columnKey}</th>
+            {BORROWER_FIELD_NAMES.map((col) => (
+              <th
+                key={col}
+                className="border border-gray-300 px-2 py-1 text-left bg-gray-50 font-medium whitespace-nowrap"
+              >
+                {BorrowerFilterFields[col as FilterableField]?.label ?? col}
+              </th>
             ))}
           </tr>
         </thead>
-
         <tbody>
-          {borrowers.map((borrower) => {
-            return (
-              <tr key={borrower.id}>
-                {BORROWER_FIELD_NAMES.map((columnKey) => (
-                  <td key={columnKey}>{borrower[columnKey]}</td>
-                ))}
-              </tr>
-            );
-          })}
+          {borrowers.map((borrower, i) => (
+            <tr key={borrower.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+              {BORROWER_FIELD_NAMES.map((col) => (
+                <td key={col} className="border border-gray-300 px-2 py-1 whitespace-nowrap">
+                  {borrower[col]}
+                </td>
+              ))}
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
