@@ -18,4 +18,6 @@ export const UI = {
   andLabel: "AND",
   removeFilterLabel: "Remove filter",
   clearAll: "Clear All",
+  noResults: "No applicants match your filters.",
+  noResultsCta: "Clear filters and try again",
 } as const;
