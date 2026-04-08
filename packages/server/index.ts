@@ -1,7 +1,8 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { Borrower, BORROWER_FIELD_NAMES } from "shared";
+import { Borrower, BorrowerFields, SearchRequestSchema } from "shared";
+import { applyFilters } from "./filters.js";
 
 import BORROWERS from "./borrowers.json" with { type: "json" };
 
@@ -16,14 +17,21 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.get("/borrowers", (_req: Request, res: Response<Borrower[]>) => {
-  // TODO: Implement support for filtering.
-
   res.send(BORROWERS);
+});
+
+app.post("/borrowers/search", (req: Request, res: Response) => {
+  const parsed = SearchRequestSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid filter request", details: parsed.error.flatten() });
+    return;
+  }
+  res.json(applyFilters(BORROWERS, parsed.data.filters));
 });
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}.`);
 
   // Log the field names to ensure shared package is working.
-  console.log(`Field names: ${BORROWER_FIELD_NAMES.join(", ")}`);
+  console.log(`Field names: ${Object.keys(BorrowerFields).join(", ")}`);
 });
