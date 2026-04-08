@@ -3,7 +3,7 @@ import path from "path";
 
 import { faker } from "@faker-js/faker";
 import _ from "lodash";
-import { Borrower, MARITAL_STATUSES } from "../../shared/index.js";
+import { Borrower, MaritalStatuses } from "../../shared/index.js";
 
 const { pathname: dirname } = new URL(import.meta.url);
 const scriptsDir = path.dirname(dirname);
@@ -22,7 +22,7 @@ function makeBorrower(): Borrower {
     lastName,
     dateOfBirth: new Date(faker.date.past({ years: 60 })).toLocaleDateString(),
     creditScore: faker.number.int({ min: 500, max: 900 }),
-    maritalStatus: MARITAL_STATUSES[faker.number.int({ min: 0, max: 2 })],
+    maritalStatus: MaritalStatuses[faker.number.int({ min: 0, max: 2 })],
     w2Income: faker.number.int({ min: 50000, max: 120000 }),
     emailAddress: faker.internet.email({ firstName, lastName }),
     homePhone: faker.phone.number(),

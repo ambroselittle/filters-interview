@@ -20,4 +20,7 @@ export const UI = {
   clearAll: "Clear All",
   noResults: "No applicants match your filters.",
   noResultsCta: "Clear filters and try again",
+  loading: "Loading borrowers\u2026",
+  errorMessage: "Something went wrong loading borrowers. Please try again.",
+  retry: "Retry",
 } as const;

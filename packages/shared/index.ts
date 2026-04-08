@@ -4,7 +4,7 @@ import { z } from "zod";
 // Borrower model
 // ---------------------------------------------------------------------------
 
-export const MARITAL_STATUSES = ["married", "separated", "unmarried"] as const;
+export const MaritalStatuses = ["married", "separated", "unmarried"] as const;
 
 export interface Borrower {
   id: string;

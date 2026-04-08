@@ -30,7 +30,8 @@ Thumbs.db
 .idea/
 
 # AI coding tools
-.claude/
+.claude/*
+!.claude/rules/
 .continue/
 .cursor/
 .playwright-mcp/
