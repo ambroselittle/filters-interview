@@ -1,10 +1,10 @@
 import { Prisma } from "@prisma/client";
-import { BorrowerFilterFields, type FilterCondition } from "shared";
+import { BorrowerFields, type FilterCondition } from "shared";
 
 export function buildPrismaWhere(filters: FilterCondition[]): Prisma.BorrowerWhereInput {
   if (filters.length === 0) return {};
   const conditions: Prisma.BorrowerWhereInput[] = filters.map(({ field, operator, value }) => {
-    const meta = BorrowerFilterFields[field];
+    const meta = BorrowerFields[field];
     if (!meta) return {};
     if (meta.type === "string") {
       if (operator === "is") return { [field]: { equals: value, mode: "insensitive" } };
