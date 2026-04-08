@@ -33,6 +33,7 @@ Thumbs.db
 .claude/
 .continue/
 .cursor/
+.playwright-mcp/
 .windsurf/
 
 # Distribution
