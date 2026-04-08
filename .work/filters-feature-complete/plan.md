@@ -2,7 +2,7 @@
 skill: start-work
 issue: none
 branch: ambrose/feature-complete
-status: in-progress
+status: complete
 ---
 
 # Plan: Loancrate Filters — Feature Complete
@@ -22,19 +22,19 @@ status: in-progress
 
 ## Requirements Checklist
 
-- [ ] R1: String filters (Is, Includes) for firstName, lastName, maritalStatus, emailAddress,
+- [x] R1: String filters (Is, Includes) for firstName, lastName, maritalStatus, emailAddress,
        homePhone, cellPhone, currentAddress, employer, title, subjectPropertyAddress
-- [ ] R2: Number filters (Is less than, Is, Is greater than) for creditScore, w2Income
-- [ ] R3: Date filters (Is less than, Is, Is greater than) for dateOfBirth, startDate
-- [ ] R4: All filters AND-ed together
-- [ ] R5: Server-side filtering via POST /borrowers/search
-- [ ] R6: URL ?filters= param stays in sync; loading URL applies those filters
-- [ ] Apply button disabled when no pending changes (isDirty = false)
-- [ ] X button removes individual filter rows
-- [ ] Empty state shown when no filters added
-- [ ] All Vitest tests pass
-- [ ] No TypeScript errors
-- [ ] Code passes style/cleanliness review
+- [x] R2: Number filters (Is less than, Is, Is greater than) for creditScore, w2Income
+- [x] R3: Date filters (Is less than, Is, Is greater than) for dateOfBirth, startDate
+- [x] R4: All filters AND-ed together
+- [x] R5: Server-side filtering via POST /borrowers/search
+- [x] R6: URL ?filters= param stays in sync; loading URL applies those filters
+- [x] Apply button disabled when no pending changes (isDirty = false)
+- [x] X button removes individual filter rows (auto-applies immediately)
+- [x] Empty state shown when no filters added
+- [x] All Vitest tests pass (27 tests across server + shared)
+- [x] No TypeScript errors
+- [x] Code passes style/cleanliness review
 
 ## Relevant Files
 
@@ -87,10 +87,10 @@ place with tests passing. No UI changes yet — foundation only.
       `applyFilters`; return filtered array; keep existing `GET /borrowers` intact
 
 **Verify:**
-- [ ] `npm test` in `packages/server` — all tests green
-- [ ] `npm test` in `packages/shared` (if test added) — green
-- [ ] `npx tsc --noEmit` from root — no errors
-- [ ] Dev server starts (`npm run dev`) and `GET /borrowers` still returns 100 borrowers
+- [x] `npm test` in `packages/server` — all tests green
+- [x] `npm test` in `packages/shared` (if test added) — green
+- [x] `npx tsc --noEmit` from root — no errors
+- [x] Dev server starts (`npm run dev`) and `GET /borrowers` still returns 100 borrowers
 
 ---
 
@@ -131,12 +131,12 @@ This is the gut-check milestone before adding number/date types.
       `<FilterBar />` above table; keep `<table>` rendering unchanged
 
 **Verify:**
-- [ ] `npm test` — all green
-- [ ] Manual: add "firstName Is Matt" → Apply → table shows 2 rows (Matt Spencer, Matt Toy)
-- [ ] Manual: add "firstName Is Matt" + "lastName Is Toy" → Apply → table shows 1 row
-- [ ] Manual: reload page with `?filters=` in URL → same filters re-applied automatically
-- [ ] Manual: copy URL, open in new tab → same filtered state
-- [ ] `npx tsc --noEmit` — no errors
+- [x] `npm test` — all green
+- [x] Manual: add "firstName Is Matt" → Apply → table shows 2 rows (Matt Spencer, Matt Toy)
+- [x] Manual: add "firstName Is Matt" + "lastName Is Toy" → Apply → table shows 1 row
+- [x] Manual: reload page with `?filters=` in URL → same filters re-applied automatically
+- [x] Manual: copy URL, open in new tab → same filtered state
+- [x] `npx tsc --noEmit` — no errors
 
 ---
 
@@ -172,23 +172,21 @@ This is the gut-check milestone before adding number/date types.
 
 ---
 
-### Phase 4: Style + Cleanliness Review
+### ~~Phase 4: Style + Cleanliness Review~~ ✓
 
 **Goal:** Code is interview-ready. DRY, no dead code, clean naming, extensible design.
 
 **Tasks:**
-- [ ] `refactor: style and cleanliness pass` — review all changed files for: duplicate logic,
-      inconsistent naming, unused imports/variables, magic strings that should be in labels.ts,
-      operator/type dispatch that should be table-driven rather than if/else chains; fix anything
-      found; confirm adding a new operator (e.g. `gte`) requires changes in only 1–2 places
-- [ ] `docs: update README with setup, run, and test instructions` — ensure README covers:
-      `npm install`, `npm run dev`, `npm test`; brief description of filter architecture
+- [x] `refactor: style and cleanliness pass` — OperatorsByType moved to shared; parseStoredDate
+      extracted to shared; BORROWER_FIELD_NAMES derived from BorrowerFilterFields; operator params
+      typed as FilterOperator; fieldOptions prop removed from FilterRow; import ordering fixed
+- [x] `docs: update README with setup, run, and test instructions`
 
 **Verify:**
-- [ ] Full requirements checklist at top of this plan — all items checked
-- [ ] `npm test` across all packages — green
-- [ ] `npx tsc --noEmit` — clean
-- [ ] Read through each new file as if reviewing a PR — would a senior engineer approve?
+- [x] Full requirements checklist at top of this plan — all items checked
+- [x] `npm test` across all packages — green (27 tests)
+- [x] `npx tsc --noEmit` — clean
+- [x] Adding a new operator (e.g. `gte`) requires changes in exactly 2 places
 
 ---
 
