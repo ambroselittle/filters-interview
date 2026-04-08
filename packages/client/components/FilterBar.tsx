@@ -69,50 +69,50 @@ export function FilterBar() {
   return (
     <FormProvider {...methods}>
       <form onSubmit={onApply} className="border border-gray-300 rounded p-4 mb-4">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold">{UI.filtersHeading}</h2>
-          <div className="flex items-center gap-2">
-            {hasFilters && (
-              <>
-                <button
-                  type="button"
-                  onClick={onClearAll}
-                  className="border border-gray-300 rounded px-3 py-1 text-sm hover:bg-gray-50"
-                >
-                  {UI.clearAll}
-                </button>
-                <button
-                  type="submit"
-                  disabled={!isDirty}
-                  className="bg-blue-600 text-white rounded px-3 py-1 text-sm
-                             hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  {UI.applyFilters}
-                </button>
-              </>
-            )}
-            <button
-              type="button"
-              onClick={() => append(defaultCondition())}
-              className="border border-gray-300 rounded px-3 py-1 text-sm hover:bg-gray-50"
-            >
-              {UI.addFilter}
-            </button>
-          </div>
-        </div>
+        <h2 className="font-semibold mb-3">{UI.filtersHeading}</h2>
 
-        {fields.length === 0 ? (
-          <p className="text-sm text-gray-400 text-center py-2">{UI.emptyState}</p>
-        ) : (
-          fields.map((field, index) => (
-            <FilterRow
-              key={field.id}
-              index={index}
-              fieldOptions={filterableFields}
-              onRemove={() => onRemove(index)}
-            />
-          ))
+        {fields.length === 0 && (
+          <p className="text-sm text-gray-400 mb-3">{UI.emptyState}</p>
         )}
+
+        {fields.map((field, index) => (
+          <FilterRow
+            key={field.id}
+            index={index}
+            fieldOptions={filterableFields}
+            onRemove={() => onRemove(index)}
+          />
+        ))}
+
+        <div className="flex items-center justify-between mt-2">
+          <button
+            type="button"
+            onClick={() => append(defaultCondition())}
+            className="border border-gray-300 rounded px-3 py-1 text-sm hover:bg-gray-50"
+          >
+            {UI.addFilter}
+          </button>
+
+          {hasFilters && (
+            <div className="flex items-center gap-2">
+              <button
+                type="submit"
+                disabled={!isDirty}
+                className="bg-blue-600 text-white rounded px-3 py-1 text-sm
+                           hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {UI.applyFilters}
+              </button>
+              <button
+                type="button"
+                onClick={onClearAll}
+                className="border border-gray-300 rounded px-3 py-1 text-sm hover:bg-gray-50"
+              >
+                {UI.clearAll}
+              </button>
+            </div>
+          )}
+        </div>
       </form>
     </FormProvider>
   );
