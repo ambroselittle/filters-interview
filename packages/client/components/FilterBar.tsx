@@ -16,15 +16,11 @@ import { useFilterStore } from "../store/filterStore";
 const FormSchema = z.object({ conditions: z.array(FilterConditionSchema) });
 type FilterFormValues = z.infer<typeof FormSchema>;
 
-// Phase 2: string fields only.
-// Phase 3: remove the .filter() to expose number and date fields.
-const filterableFields = (
-  Object.entries(BorrowerFilterFields) as Array<[FilterableField, FieldMeta]>
-).filter(([, meta]) => meta.type === "string");
+const filterableFields = Object.entries(BorrowerFilterFields) as Array<[FilterableField, FieldMeta]>;
 
 function defaultCondition(): FilterCondition {
-  const [field] = filterableFields[0];
-  return { field, operator: OperatorsByType["string"][0], value: "" };
+  const [field, meta] = filterableFields[0];
+  return { field, operator: OperatorsByType[meta.type][0], value: "" };
 }
 
 export function FilterBar() {

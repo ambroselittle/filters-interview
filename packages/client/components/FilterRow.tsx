@@ -76,8 +76,8 @@ export function FilterRow({ index, fieldOptions, onRemove }: FilterRowProps) {
         render={({ field }) => (
           <input
             {...field}
-            type="text"
-            placeholder="Value"
+            type={fieldType === "number" ? "number" : fieldType === "date" ? "date" : "text"}
+            placeholder={fieldType === "date" ? undefined : "Value"}
             className="border border-gray-300 rounded px-2 py-1 text-sm min-w-32"
           />
         )}
