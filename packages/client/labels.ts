@@ -24,4 +24,5 @@ export const UI = {
   whereLabel: "Where",
   andLabel: "AND",
   removeFilterLabel: "Remove filter",
+  clearAll: "Clear All",
 } as const;
