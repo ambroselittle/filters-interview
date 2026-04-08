@@ -100,32 +100,32 @@ place with tests passing. No UI changes yet — foundation only.
 This is the gut-check milestone before adding number/date types.
 
 **Tasks:**
-- [ ] `feat(shared): add display labels for filter operators` — add `labels.ts` to
+- [x] `feat(shared): add display labels for filter operators` — add `labels.ts` to
       `packages/client/src/` (or `packages/shared/`) with all UI strings: operator labels
       (`{ is: 'Is', includes: 'Includes', lt: 'Is less than', gt: 'Is greater than' }`),
       placeholder text, button labels — single place for all display strings (localization seam)
-- [ ] `feat(client): add Zustand filter store` — create
+- [x] `feat(client): add Zustand filter store` — create
       `packages/client/src/store/filterStore.ts`; store shape:
       `appliedFilters`, `pendingFilters`, `isDirty` (computed), actions: `addCondition`,
       `removeCondition`, `updateCondition`, `applyFilters`, `resetPending`; `isDirty` is
       `JSON.stringify(pendingFilters) !== JSON.stringify(appliedFilters)`
-- [ ] `feat(client): add useUrlFilters hook` — create
+- [x] `feat(client): add useUrlFilters hook` — create
       `packages/client/src/hooks/useUrlFilters.ts`; on mount: read `?filters=` from
       `window.location.search`, call `deserializeFilters`, set both `appliedFilters` and
       `pendingFilters` in store; on `appliedFilters` change: call `serializeFilters`, push to
       URL via `history.replaceState` (no page reload)
-- [ ] `feat(client): add FilterRow component` — create
+- [x] `feat(client): add FilterRow component` — create
       `packages/client/src/components/FilterRow.tsx`; renders: row label ("Where"/"AND"),
       field `<select>` (only string-type fields from `BorrowerFilterFields`), operator
       `<select>` (operators valid for selected field type), value `<input>`, X remove button;
       controlled via React Hook Form field array; Tailwind classes for layout
-- [ ] `feat(client): add FilterBar component` — create
+- [x] `feat(client): add FilterBar component` — create
       `packages/client/src/components/FilterBar.tsx`; renders: "Filters" heading + "Add Filter"
       button (top right); empty state when no conditions; list of `FilterRow` components;
       "Apply Filters" button (disabled when `!isDirty`); uses `useForm` from RHF with Zod
       resolver; on Apply: validate → call store `applyFilters` → triggers `useUrlFilters` URL
       update → triggers server fetch
-- [ ] `feat(client): wire FilterBar to App and fetch on apply` — update `App.tsx`: add
+- [x] `feat(client): wire FilterBar to App and fetch on apply` — update `App.tsx`: add
       `useUrlFilters()` call; move `getBorrowers` to use POST `/borrowers/search` with
       `appliedFilters` as body; subscribe to `appliedFilters` changes to re-fetch; render
       `<FilterBar />` above table; keep `<table>` rendering unchanged
