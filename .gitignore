@@ -12,7 +12,12 @@ dist/
 
 # Environment variables
 .env
-.env.*
+.env.local
+.env.*.local
+!.env.example
+
+# Deployment state
+.deploy-aws.json
 
 # OS-specific
 .DS_Store
@@ -28,6 +33,7 @@ Thumbs.db
 .claude/
 .continue/
 .cursor/
+.playwright-mcp/
 .windsurf/
 
 # Distribution

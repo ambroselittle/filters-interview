@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    name: Typecheck, Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # Installs all deps and runs postinstall (prisma generate) in packages/server
+      - name: Install dependencies
+        run: npm ci
+
+      # tsc compilation across shared + server + client — catches type errors
+      - name: Build
+        run: npm run build
+
+      # vitest across all packages
+      - name: Test
+        run: make test
