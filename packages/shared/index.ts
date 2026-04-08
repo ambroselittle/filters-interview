@@ -115,13 +115,17 @@ export const BorrowerFilterFields: Record<FilterableField, FieldMeta> = {
 // URL serialization utilities
 // ---------------------------------------------------------------------------
 
+/** Serialize filters to a plain JSON string for use as a URL query parameter value.
+ *  URLSearchParams handles percent-encoding automatically — do not pre-encode here. */
 export function serializeFilters(filters: FilterCondition[]): string {
-  return encodeURIComponent(JSON.stringify(filters));
+  return JSON.stringify(filters);
 }
 
+/** Deserialize filters from a URL query parameter value.
+ *  URLSearchParams.get() returns already-decoded strings — parse JSON directly. */
 export function deserializeFilters(raw: string): FilterCondition[] {
   try {
-    const parsed = JSON.parse(decodeURIComponent(raw));
+    const parsed = JSON.parse(raw);
     const result = z.array(FilterConditionSchema).safeParse(parsed);
     return result.success ? result.data : [];
   } catch {

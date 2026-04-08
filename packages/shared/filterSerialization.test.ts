@@ -22,7 +22,7 @@ describe("serializeFilters / deserializeFilters", () => {
   });
 
   it("returns an empty array when the payload fails Zod validation", () => {
-    const invalid = encodeURIComponent(JSON.stringify([{ field: "unknown", operator: "is", value: "x" }]));
+    const invalid = JSON.stringify([{ field: "unknown", operator: "is", value: "x" }]);
     expect(deserializeFilters(invalid)).toEqual([]);
   });
 
