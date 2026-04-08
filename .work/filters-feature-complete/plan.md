@@ -145,30 +145,30 @@ This is the gut-check milestone before adding number/date types.
 **Goal:** All three filter types working. All 14 fields available. Feature complete per spec.
 
 **Tasks:**
-- [ ] `feat(server): extend applyFilters with number operator tests` — in `filters.test.ts`:
+- [x] `feat(server): extend applyFilters with number operator tests` — in `filters.test.ts`:
       add tests for `lt`, `is`, `gt` on number fields; add tests for edge cases (NaN value,
       boundary values); implement in `filters.ts` — parse `value` as `Number`, apply comparison
-- [ ] `feat(server): extend applyFilters with date operator tests` — in `filters.test.ts`:
+- [x] `feat(server): extend applyFilters with date operator tests` — in `filters.test.ts`:
       add tests for `lt`, `is`, `gt` on date fields (stored as MM/DD/YYYY strings); implement
       in `filters.ts` — parse stored date string to `Date`, parse filter value (`YYYY-MM-DD`
       from `<input type="date">`) to `Date`, compare `getTime()`; handle invalid dates gracefully
-- [ ] `feat(client): extend FilterRow for number and date field types` — update `FilterRow.tsx`:
+- [x] `feat(client): extend FilterRow for number and date field types` — update `FilterRow.tsx`:
       field `<select>` now shows ALL filterable fields (string + number + date); when field
       changes, operator options update based on `BorrowerFilterFields[field].type`; when type
       is `'number'`, value input is `<input type="number">`; when type is `'date'`, value input
       is `<input type="date">`; Zod validation schema updates accordingly
-- [ ] `feat(client): use Intl for table number and date formatting` — in table rendering in
+- [x] `feat(client): use Intl for table number and date formatting` — in table rendering in
       `App.tsx`: format number fields (creditScore, w2Income) with `Intl.NumberFormat('en-US')`;
       format date fields (dateOfBirth, startDate) with
       `Intl.DateTimeFormat('en-US', { dateStyle: 'short' })` — cosmetic improvement, localization seam
 
 **Verify:**
-- [ ] `npm test` — all tests green, including new number + date cases
-- [ ] Manual: creditScore Is greater than 800 → verify only high-score borrowers shown
-- [ ] Manual: dateOfBirth Is less than 1970-01-01 (as date input) → verify older borrowers shown
-- [ ] Manual: firstName Includes "Matt" + creditScore Is greater than 700 → AND works across types
-- [ ] `npx tsc --noEmit` — no errors
-- [ ] All R1–R6 acceptance criteria met
+- [x] `npm test` — all tests green, including new number + date cases
+- [x] Manual: creditScore Is greater than 800 → verify only high-score borrowers shown
+- [x] Manual: dateOfBirth Is less than 1970-01-01 (as date input) → verify older borrowers shown
+- [x] Manual: dateOfBirth lt 1970-01-01 AND creditScore gt 800 → AND works across types (9 results)
+- [x] `npx tsc --noEmit` — no errors
+- [x] All R1–R6 acceptance criteria met
 
 ---
 
