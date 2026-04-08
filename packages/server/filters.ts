@@ -1,4 +1,4 @@
-import { BorrowerFilterFields, parseStoredDate, type Borrower, type FilterCondition, type FilterOperator } from "shared";
+import { BorrowerFields, parseStoredDate, type Borrower, type FilterCondition, type FilterOperator } from "shared";
 
 // ---------------------------------------------------------------------------
 // Type-specific comparison handlers
@@ -54,7 +54,7 @@ function matchesDateCondition(fieldValue: string, operator: FilterOperator, filt
 // ---------------------------------------------------------------------------
 
 function matchesCondition(borrower: Borrower, { field, operator, value }: FilterCondition): boolean {
-  const meta = BorrowerFilterFields[field];
+  const meta = BorrowerFields[field];
   if (!meta) return true;
 
   const rawValue = borrower[field as keyof Borrower];

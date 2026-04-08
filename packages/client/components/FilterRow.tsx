@@ -1,5 +1,5 @@
 import { useFormContext, Controller } from "react-hook-form";
-import { BorrowerFilterFields, OperatorsByType, type FilterableField, type FilterCondition } from "shared";
+import { BorrowerFields, OperatorsByType, type FieldMeta, type FilterableField, type FilterCondition } from "shared";
 import { OperatorLabels, UI } from "../labels";
 
 type FilterFormValues = { conditions: FilterCondition[] };
@@ -9,20 +9,20 @@ type FilterRowProps = {
   onRemove: () => void;
 };
 
-const fieldOptions = Object.entries(BorrowerFilterFields) as Array<[FilterableField, { label: string; type: string }]>;
+const fieldOptions = Object.entries(BorrowerFields) as Array<[FilterableField, FieldMeta]>;
 
 export function FilterRow({ index, onRemove }: FilterRowProps) {
   const { control, setValue, watch } = useFormContext<FilterFormValues>();
 
   const currentField = watch(`conditions.${index}.field`) as FilterableField;
-  const fieldType = BorrowerFilterFields[currentField]?.type ?? "string";
+  const fieldType = BorrowerFields[currentField]?.type ?? "string";
   const validOperators = OperatorsByType[fieldType];
 
   function handleFieldChange(
     newField: FilterableField,
     onChange: (value: FilterableField) => void,
   ) {
-    const newType = BorrowerFilterFields[newField].type;
+    const newType = BorrowerFields[newField].type;
     const currentOperator = watch(`conditions.${index}.operator`);
     onChange(newField);
     if (!OperatorsByType[newType].includes(currentOperator)) {

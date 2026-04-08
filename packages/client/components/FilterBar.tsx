@@ -3,8 +3,8 @@ import { useForm, useFieldArray, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
-  BORROWER_FIELD_NAMES,
-  BorrowerFilterFields,
+  BorrowerFieldName,
+  BorrowerFields,
   FilterConditionSchema,
   OperatorsByType,
   type FilterCondition,
@@ -17,8 +17,8 @@ const FormSchema = z.object({ conditions: z.array(FilterConditionSchema) });
 type FilterFormValues = z.infer<typeof FormSchema>;
 
 function defaultCondition(): FilterCondition {
-  const field = BORROWER_FIELD_NAMES[0];
-  return { field, operator: OperatorsByType[BorrowerFilterFields[field].type][0], value: "" };
+  const field = BorrowerFieldName.FirstName;
+  return { field, operator: OperatorsByType[BorrowerFields[field].type][0], value: "" };
 }
 
 export function FilterBar() {

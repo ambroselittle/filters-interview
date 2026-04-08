@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { Borrower, BORROWER_FIELD_NAMES, SearchRequestSchema } from "shared";
+import { Borrower, BorrowerFields, SearchRequestSchema } from "shared";
 import { applyFilters } from "./filters.js";
 
 import BORROWERS from "./borrowers.json" with { type: "json" };
@@ -33,5 +33,5 @@ app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}.`);
 
   // Log the field names to ensure shared package is working.
-  console.log(`Field names: ${BORROWER_FIELD_NAMES.join(", ")}`);
+  console.log(`Field names: ${Object.keys(BorrowerFields).join(", ")}`);
 });

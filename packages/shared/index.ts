@@ -72,7 +72,26 @@ export type FieldMeta = {
   type: FieldType;
 };
 
-export const BorrowerFilterFields: Record<FilterableField, FieldMeta> = {
+/** Named constants for each borrower field — use instead of magic strings.
+ *  e.g. BorrowerFields[BorrowerFieldName.CreditScore] */
+export const BorrowerFieldName = {
+  FirstName: "firstName",
+  LastName: "lastName",
+  DateOfBirth: "dateOfBirth",
+  CreditScore: "creditScore",
+  MaritalStatus: "maritalStatus",
+  W2Income: "w2Income",
+  EmailAddress: "emailAddress",
+  HomePhone: "homePhone",
+  CellPhone: "cellPhone",
+  CurrentAddress: "currentAddress",
+  Employer: "employer",
+  Title: "title",
+  StartDate: "startDate",
+  SubjectPropertyAddress: "subjectPropertyAddress",
+} as const satisfies Record<string, FilterableField>;
+
+export const BorrowerFields: Record<FilterableField, FieldMeta> = {
   firstName: { label: "First Name", type: "string" },
   lastName: { label: "Last Name", type: "string" },
   dateOfBirth: { label: "Date of Birth", type: "date" },
@@ -88,9 +107,6 @@ export const BorrowerFilterFields: Record<FilterableField, FieldMeta> = {
   startDate: { label: "Start Date", type: "date" },
   subjectPropertyAddress: { label: "Subject Property Address", type: "string" },
 };
-
-/** Ordered list of all filterable field keys, derived from BorrowerFilterFields. */
-export const BORROWER_FIELD_NAMES = Object.keys(BorrowerFilterFields) as Array<FilterableField>;
 
 /** Valid operators per field type — single source of truth for client and server. */
 export const OperatorsByType: Record<FieldType, FilterOperator[]> = {

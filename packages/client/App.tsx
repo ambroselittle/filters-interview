@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BORROWER_FIELD_NAMES, BorrowerFilterFields, parseStoredDate, type Borrower, type FieldType } from "shared";
+import { BorrowerFields, parseStoredDate, type Borrower, type FieldMeta, type FilterableField, type FieldType } from "shared";
 import { useFilterStore } from "./store/filterStore";
 import { useUrlFilters } from "./hooks/useUrlFilters";
 import { searchBorrowers } from "./api";
@@ -19,6 +19,8 @@ function formatCell(value: string | number, type: FieldType): string {
   return String(value);
 }
 
+const fieldEntries = Object.entries(BorrowerFields) as Array<[FilterableField, FieldMeta]>;
+
 function App() {
   const { appliedFilters } = useFilterStore();
   const [borrowers, setBorrowers] = useState<Borrower[]>([]);
@@ -36,12 +38,12 @@ function App() {
       <table className="w-full text-sm border-collapse">
         <thead>
           <tr>
-            {BORROWER_FIELD_NAMES.map((col) => (
+            {fieldEntries.map(([col, meta]) => (
               <th
                 key={col}
                 className="border border-gray-300 px-2 py-1 text-left bg-gray-50 font-medium whitespace-nowrap"
               >
-                {BorrowerFilterFields[col]?.label ?? col}
+                {meta.label}
               </th>
             ))}
           </tr>
@@ -49,14 +51,11 @@ function App() {
         <tbody>
           {borrowers.map((borrower, i) => (
             <tr key={borrower.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-              {BORROWER_FIELD_NAMES.map((col) => {
-                const meta = BorrowerFilterFields[col];
-                return (
-                  <td key={col} className="border border-gray-300 px-2 py-1 whitespace-nowrap">
-                    {meta ? formatCell(borrower[col], meta.type) : borrower[col]}
-                  </td>
-                );
-              })}
+              {fieldEntries.map(([col, meta]) => (
+                <td key={col} className="border border-gray-300 px-2 py-1 whitespace-nowrap">
+                  {formatCell(borrower[col], meta.type)}
+                </td>
+              ))}
             </tr>
           ))}
         </tbody>
