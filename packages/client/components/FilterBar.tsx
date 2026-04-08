@@ -46,6 +46,7 @@ export function FilterBar() {
   }, [appliedFilters, methods.reset]);
 
   const onApply = methods.handleSubmit((data) => {
+    if (!methods.formState.isDirty) return;
     methods.reset({ conditions: data.conditions }); // immediately clear dirty state
     setAppliedFilters(data.conditions);
   });
@@ -54,7 +55,7 @@ export function FilterBar() {
 
   return (
     <FormProvider {...methods}>
-      <div className="border border-gray-300 rounded p-4 mb-4">
+      <form onSubmit={onApply} className="border border-gray-300 rounded p-4 mb-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-semibold">{UI.filtersHeading}</h2>
           <button
@@ -79,8 +80,7 @@ export function FilterBar() {
               />
             ))}
             <button
-              type="button"
-              onClick={onApply}
+              type="submit"
               disabled={!isDirty}
               aria-label={UI.applyFilters}
               className="mt-2 bg-blue-600 text-white rounded px-3 py-1 text-sm
@@ -90,7 +90,7 @@ export function FilterBar() {
             </button>
           </>
         )}
-      </div>
+      </form>
     </FormProvider>
   );
 }
