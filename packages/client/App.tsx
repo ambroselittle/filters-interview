@@ -25,18 +25,52 @@ const fieldEntries = Object.entries(BorrowerFields) as Array<[FilterableField, F
 function App() {
   const { appliedFilters, setAppliedFilters } = useFilterStore();
   const [borrowers, setBorrowers] = useState<Borrower[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useUrlFilters();
 
   useEffect(() => {
-    searchBorrowers(appliedFilters).then(setBorrowers).catch(console.error);
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+
+    searchBorrowers(appliedFilters, controller.signal)
+      .then(setBorrowers)
+      .catch((err) => {
+        if (controller.signal.aborted) return;
+        console.error("Failed to fetch borrowers:", err);
+        setError(UI.errorMessage);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () => controller.abort();
   }, [appliedFilters]);
+
+  const handleRetry = () => {
+    // Trigger a re-fetch by re-setting the same filters
+    setAppliedFilters([...appliedFilters]);
+  };
 
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Borrowers</h1>
       <FilterBar />
-      {appliedFilters.length > 0 && borrowers.length === 0 ? (
+
+      {error ? (
+        <div className="py-16 text-center text-red-600">
+          <p className="mb-2">{error}</p>
+          <button type="button" onClick={handleRetry} className="text-blue-600 hover:underline text-sm">
+            {UI.retry}
+          </button>
+        </div>
+      ) : loading ? (
+        <div className="py-16 text-center text-gray-400">
+          <p>{UI.loading}</p>
+        </div>
+      ) : appliedFilters.length > 0 && borrowers.length === 0 ? (
         <div className="py-16 text-center text-gray-500">
           <p className="mb-1">{UI.noResults}</p>
           <button
