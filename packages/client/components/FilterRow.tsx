@@ -1,16 +1,17 @@
 import { useFormContext, Controller } from "react-hook-form";
-import { BorrowerFilterFields, type FilterableField, type FilterCondition } from "shared";
-import { OperatorLabels, OperatorsByType, UI } from "../labels";
+import { BorrowerFilterFields, OperatorsByType, type FilterableField, type FilterCondition } from "shared";
+import { OperatorLabels, UI } from "../labels";
 
 type FilterFormValues = { conditions: FilterCondition[] };
 
 type FilterRowProps = {
   index: number;
-  fieldOptions: Array<[FilterableField, { label: string; type: string }]>;
   onRemove: () => void;
 };
 
-export function FilterRow({ index, fieldOptions, onRemove }: FilterRowProps) {
+const fieldOptions = Object.entries(BorrowerFilterFields) as Array<[FilterableField, { label: string; type: string }]>;
+
+export function FilterRow({ index, onRemove }: FilterRowProps) {
   const { control, setValue, watch } = useFormContext<FilterFormValues>();
 
   const currentField = watch(`conditions.${index}.field`) as FilterableField;

@@ -1,4 +1,4 @@
-import type { FieldType, FilterOperator } from "shared";
+import type { FilterOperator } from "shared";
 
 /** Human-readable labels for each filter operator. */
 export const OperatorLabels: Record<FilterOperator, string> = {
@@ -6,13 +6,6 @@ export const OperatorLabels: Record<FilterOperator, string> = {
   includes: "Includes",
   lt: "Is less than",
   gt: "Is greater than",
-};
-
-/** Valid operators per field type — drives the operator dropdown options. */
-export const OperatorsByType: Record<FieldType, FilterOperator[]> = {
-  string: ["is", "includes"],
-  number: ["is", "lt", "gt"],
-  date: ["is", "lt", "gt"],
 };
 
 /** All static UI display strings — single place to swap for localization. */

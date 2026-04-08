@@ -1,10 +1,10 @@
-import { BorrowerFilterFields, type Borrower, type FilterCondition } from "shared";
+import { BorrowerFilterFields, parseStoredDate, type Borrower, type FilterCondition, type FilterOperator } from "shared";
 
 // ---------------------------------------------------------------------------
 // Type-specific comparison handlers
 // ---------------------------------------------------------------------------
 
-function matchesStringCondition(fieldValue: string, operator: string, filterValue: string): boolean {
+function matchesStringCondition(fieldValue: string, operator: FilterOperator, filterValue: string): boolean {
   const a = fieldValue.toLowerCase();
   const b = filterValue.toLowerCase();
   switch (operator) {
@@ -17,7 +17,7 @@ function matchesStringCondition(fieldValue: string, operator: string, filterValu
   }
 }
 
-function matchesNumberCondition(fieldValue: number, operator: string, filterValue: string): boolean {
+function matchesNumberCondition(fieldValue: number, operator: FilterOperator, filterValue: string): boolean {
   const n = Number(filterValue);
   if (isNaN(n)) return true;
   switch (operator) {
@@ -32,13 +32,7 @@ function matchesNumberCondition(fieldValue: number, operator: string, filterValu
   }
 }
 
-/** Parse a date stored as M/D/YYYY or MM/DD/YYYY into a Date. */
-function parseStoredDate(dateStr: string): Date {
-  const [month, day, year] = dateStr.split("/").map(Number);
-  return new Date(year, month - 1, day);
-}
-
-function matchesDateCondition(fieldValue: string, operator: string, filterValue: string): boolean {
+function matchesDateCondition(fieldValue: string, operator: FilterOperator, filterValue: string): boolean {
   const storedDate = parseStoredDate(fieldValue);
   // filterValue arrives as YYYY-MM-DD from <input type="date">
   const filterDate = new Date(filterValue + "T00:00:00");

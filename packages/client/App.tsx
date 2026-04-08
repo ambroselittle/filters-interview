@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { BORROWER_FIELD_NAMES, BorrowerFilterFields, type Borrower, type FilterableField, type FieldType } from "shared";
+import { BORROWER_FIELD_NAMES, BorrowerFilterFields, parseStoredDate, type Borrower, type FieldType } from "shared";
+import { useFilterStore } from "./store/filterStore";
+import { useUrlFilters } from "./hooks/useUrlFilters";
+import { searchBorrowers } from "./api";
+import { FilterBar } from "./components/FilterBar";
+
+import "./style.css";
 
 const numberFmt = new Intl.NumberFormat("en-US");
 const dateFmt = new Intl.DateTimeFormat("en-US", { dateStyle: "short" });
@@ -7,19 +13,11 @@ const dateFmt = new Intl.DateTimeFormat("en-US", { dateStyle: "short" });
 function formatCell(value: string | number, type: FieldType): string {
   if (type === "number" && typeof value === "number") return numberFmt.format(value);
   if (type === "date" && typeof value === "string") {
-    // stored as M/D/YYYY — parse without timezone shift
-    const [m, d, y] = value.split("/").map(Number);
-    const date = new Date(y, m - 1, d);
+    const date = parseStoredDate(value);
     return isNaN(date.getTime()) ? value : dateFmt.format(date);
   }
   return String(value);
 }
-import { useFilterStore } from "./store/filterStore";
-import { useUrlFilters } from "./hooks/useUrlFilters";
-import { searchBorrowers } from "./api";
-import { FilterBar } from "./components/FilterBar";
-
-import "./style.css";
 
 function App() {
   const { appliedFilters } = useFilterStore();
@@ -43,7 +41,7 @@ function App() {
                 key={col}
                 className="border border-gray-300 px-2 py-1 text-left bg-gray-50 font-medium whitespace-nowrap"
               >
-                {BorrowerFilterFields[col as FilterableField]?.label ?? col}
+                {BorrowerFilterFields[col]?.label ?? col}
               </th>
             ))}
           </tr>
@@ -52,7 +50,7 @@ function App() {
           {borrowers.map((borrower, i) => (
             <tr key={borrower.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
               {BORROWER_FIELD_NAMES.map((col) => {
-                const meta = BorrowerFilterFields[col as FilterableField];
+                const meta = BorrowerFilterFields[col];
                 return (
                   <td key={col} className="border border-gray-300 px-2 py-1 whitespace-nowrap">
                     {meta ? formatCell(borrower[col], meta.type) : borrower[col]}

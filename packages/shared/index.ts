@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // ---------------------------------------------------------------------------
-// Existing borrower model
+// Borrower model
 // ---------------------------------------------------------------------------
 
 export const MARITAL_STATUSES = ["married", "separated", "unmarried"] as const;
@@ -24,34 +24,12 @@ export interface Borrower {
   subjectPropertyAddress: string;
 }
 
-export const BORROWER_FIELD_NAMES = [
-  "firstName",
-  "lastName",
-  "dateOfBirth",
-  "creditScore",
-  "maritalStatus",
-  "w2Income",
-  "emailAddress",
-  "homePhone",
-  "cellPhone",
-  "currentAddress",
-  "employer",
-  "title",
-  "startDate",
-  "subjectPropertyAddress",
-] as const;
-
 // ---------------------------------------------------------------------------
 // Filter types
 // ---------------------------------------------------------------------------
 
 export type FieldType = "string" | "number" | "date";
 
-/** Operators available per field type:
- *  string → "is" | "includes"
- *  number → "is" | "lt" | "gt"
- *  date   → "is" | "lt" | "gt"
- */
 export const FilterOperator = z.enum(["is", "includes", "lt", "gt"]);
 export type FilterOperator = z.infer<typeof FilterOperator>;
 
@@ -110,6 +88,26 @@ export const BorrowerFilterFields: Record<FilterableField, FieldMeta> = {
   startDate: { label: "Start Date", type: "date" },
   subjectPropertyAddress: { label: "Subject Property Address", type: "string" },
 };
+
+/** Ordered list of all filterable field keys, derived from BorrowerFilterFields. */
+export const BORROWER_FIELD_NAMES = Object.keys(BorrowerFilterFields) as Array<FilterableField>;
+
+/** Valid operators per field type — single source of truth for client and server. */
+export const OperatorsByType: Record<FieldType, FilterOperator[]> = {
+  string: ["is", "includes"],
+  number: ["is", "lt", "gt"],
+  date: ["is", "lt", "gt"],
+};
+
+// ---------------------------------------------------------------------------
+// Date utilities
+// ---------------------------------------------------------------------------
+
+/** Parse a date stored as M/D/YYYY or MM/DD/YYYY into a local Date. */
+export function parseStoredDate(dateStr: string): Date {
+  const [month, day, year] = dateStr.split("/").map(Number);
+  return new Date(year, month - 1, day);
+}
 
 // ---------------------------------------------------------------------------
 // URL serialization utilities

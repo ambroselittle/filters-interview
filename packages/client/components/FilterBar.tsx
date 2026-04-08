@@ -3,24 +3,22 @@ import { useForm, useFieldArray, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
+  BORROWER_FIELD_NAMES,
   BorrowerFilterFields,
   FilterConditionSchema,
-  type FieldMeta,
-  type FilterableField,
+  OperatorsByType,
   type FilterCondition,
 } from "shared";
 import { FilterRow } from "./FilterRow";
-import { OperatorsByType, UI } from "../labels";
+import { UI } from "../labels";
 import { useFilterStore } from "../store/filterStore";
 
 const FormSchema = z.object({ conditions: z.array(FilterConditionSchema) });
 type FilterFormValues = z.infer<typeof FormSchema>;
 
-const filterableFields = Object.entries(BorrowerFilterFields) as Array<[FilterableField, FieldMeta]>;
-
 function defaultCondition(): FilterCondition {
-  const [field, meta] = filterableFields[0];
-  return { field, operator: OperatorsByType[meta.type][0], value: "" };
+  const field = BORROWER_FIELD_NAMES[0];
+  return { field, operator: OperatorsByType[BorrowerFilterFields[field].type][0], value: "" };
 }
 
 export function FilterBar() {
@@ -75,7 +73,6 @@ export function FilterBar() {
           <FilterRow
             key={field.id}
             index={index}
-            fieldOptions={filterableFields}
             onRemove={() => onRemove(index)}
           />
         ))}
