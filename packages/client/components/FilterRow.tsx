@@ -33,9 +33,10 @@ export function FilterRow({ index, onRemove, onAutoApply }: FilterRowProps) {
     if (!OperatorsByType[newType].includes(currentOperator)) {
       setValue(`conditions.${index}.operator`, OperatorsByType[newType][0]);
     }
-    // Preserve the value when switching between plain string fields;
-    // clear it for type changes or when the new field has constrained values.
-    if (oldType !== "string" || newType !== "string" || newMeta.allowedValues) {
+    // Preserve value only between plain text fields (same type, no dropdowns).
+    const bothPlainText =
+      oldType === "string" && newType === "string" && !fieldMeta?.allowedValues && !newMeta.allowedValues;
+    if (!bothPlainText) {
       setValue(`conditions.${index}.value`, "");
     }
     onAutoApply();
