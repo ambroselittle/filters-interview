@@ -47,9 +47,13 @@ export function FilterBar() {
   const onApply = methods.handleSubmit((data) => {
     if (!methods.formState.isDirty) return;
     const active = document.activeElement as HTMLElement | null;
+    const name = active?.getAttribute("name") ?? "";
     applyFilters(data);
-    // Restore focus after form reset so the user can keep typing
-    requestAnimationFrame(() => active?.focus());
+    // Restore focus after form reset — the DOM node may be replaced by useFieldArray,
+    // so re-query by the input's name attribute.
+    if (name) requestAnimationFrame(() => {
+      (document.querySelector(`[name="${name}"]`) as HTMLElement | null)?.focus();
+    });
   });
 
   const onAutoApply = () => {
