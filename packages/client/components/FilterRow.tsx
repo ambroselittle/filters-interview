@@ -31,7 +31,9 @@ export function FilterRow({ index, onRemove, onAutoApply }: FilterRowProps) {
     const newMeta = BorrowerFields[newField];
     const newType = newMeta.type;
     onChange(newField);
-    if (newMeta.allowedValues || !OperatorsByType[newType].includes(currentOperator)) {
+    if (newMeta.allowedValues) {
+      setValue(`conditions.${index}.operator`, "is");
+    } else if (!OperatorsByType[newType].includes(currentOperator)) {
       setValue(`conditions.${index}.operator`, OperatorsByType[newType][0]);
     }
     // Preserve value only between plain text fields (same type, no dropdowns).

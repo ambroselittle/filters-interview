@@ -111,7 +111,7 @@ export const BorrowerFields: Record<FilterableField, FieldMeta> = {
 
 /** Valid operators per field type — single source of truth for client and server. */
 export const OperatorsByType: Record<FieldType, FilterOperator[]> = {
-  string: ["is", "includes"],
+  string: ["includes", "is"],
   number: ["is", "lt", "gt"],
   date: ["is", "lt", "gt"],
 };
