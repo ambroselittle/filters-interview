@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import type { Borrower, FilterCondition } from "shared";
 import { searchBorrowers } from "../api";
 import { UI } from "../labels";
@@ -10,7 +10,25 @@ export type BorrowerFetchState = {
   retry: () => void;
 };
 
+/** Filters with empty values stripped, stable across renders when the data hasn't changed. */
+function useActiveFilters(appliedFilters: FilterCondition[]): FilterCondition[] {
+  const ref = useRef<FilterCondition[]>([]);
+  return useMemo(() => {
+    const active = appliedFilters.filter((f) => f.value !== "");
+    const prev = ref.current;
+    if (
+      active.length === prev.length &&
+      active.every((f, i) => f.field === prev[i].field && f.operator === prev[i].operator && f.value === prev[i].value)
+    ) {
+      return prev;
+    }
+    ref.current = active;
+    return active;
+  }, [appliedFilters]);
+}
+
 export function useBorrowers(appliedFilters: FilterCondition[]): BorrowerFetchState {
+  const activeFilters = useActiveFilters(appliedFilters);
   const [borrowers, setBorrowers] = useState<Borrower[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +39,6 @@ export function useBorrowers(appliedFilters: FilterCondition[]): BorrowerFetchSt
     setLoading(true);
     setError(null);
 
-    const activeFilters = appliedFilters.filter((f) => f.value !== "");
     searchBorrowers(activeFilters, controller.signal)
       .then(setBorrowers)
       .catch((err) => {
@@ -34,7 +51,7 @@ export function useBorrowers(appliedFilters: FilterCondition[]): BorrowerFetchSt
       });
 
     return () => controller.abort();
-  }, [appliedFilters, retryCount]);
+  }, [activeFilters, retryCount]);
 
   const retry = useCallback(() => setRetryCount((c) => c + 1), []);
 
