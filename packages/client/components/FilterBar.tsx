@@ -39,11 +39,19 @@ export function FilterBar() {
     methods.reset({ conditions: appliedFilters });
   }, [appliedFilters, methods.reset]);
 
-  const onApply = methods.handleSubmit((data) => {
-    if (!methods.formState.isDirty) return;
+  const applyFilters = (data: FilterFormValues) => {
     methods.reset({ conditions: data.conditions });
     setAppliedFilters(data.conditions);
+  };
+
+  const onApply = methods.handleSubmit((data) => {
+    if (!methods.formState.isDirty) return;
+    applyFilters(data);
   });
+
+  const onAutoApply = () => {
+    methods.handleSubmit(applyFilters)();
+  };
 
   const onRemove = (index: number) => {
     const updated = methods.getValues("conditions").filter((_, i) => i !== index);
@@ -74,6 +82,7 @@ export function FilterBar() {
             key={field.id}
             index={index}
             onRemove={() => onRemove(index)}
+            onAutoApply={onAutoApply}
           />
         ))}
 

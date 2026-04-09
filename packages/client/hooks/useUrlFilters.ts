@@ -1,27 +1,12 @@
 import { useEffect } from "react";
-import { deserializeFilters, serializeFilters } from "shared";
+import { serializeFilters } from "shared";
 import { useFilterStore } from "../store/filterStore";
 
-/**
- * Syncs filter state with the URL query string.
- * - On mount: reads ?filters= and applies any stored filters.
- * - On appliedFilters change: updates the URL so the state is shareable.
- */
+/** Keeps the URL query string in sync with applied filters (write-only).
+ *  Initial URL → store hydration happens in the store initializer. */
 export function useUrlFilters() {
-  const { setAppliedFilters, appliedFilters } = useFilterStore();
+  const appliedFilters = useFilterStore((s) => s.appliedFilters);
 
-  // Initialize from URL on first load
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const raw = params.get("filters");
-    if (raw) {
-      const filters = deserializeFilters(raw);
-      if (filters.length > 0) setAppliedFilters(filters);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Keep URL in sync whenever applied filters change
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (appliedFilters.length > 0) {

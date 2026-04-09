@@ -12,8 +12,8 @@ packages/
 ```
 
 The **shared package** is the single source of truth for domain types, filter schemas, field
-metadata (`BorrowerFields`, `OperatorsByType`), and serialization. Both client and server import
-from it — never duplicate these definitions.
+metadata (`BorrowerFields`, `OperatorsByType`), value validation (`validateFilterValues`), and
+serialization. Both client and server import from it — never duplicate these definitions.
 
 ## Tech Stack
 
@@ -44,9 +44,9 @@ No client-side tests yet. Server and shared tests use Vitest.
 ## Data Flow
 
 1. User builds filter conditions in `FilterBar` (React Hook Form + Zod validation, pending state)
-2. On Apply / row remove / Clear All -> `FilterBar` writes to the Zustand `filterStore`
-3. `useUrlFilters` hook syncs `appliedFilters` <-> URL `?filters=` param (shareable links)
-4. `App` re-fetches from `POST /borrowers/search` whenever `appliedFilters` changes
+2. On Apply / row remove / Clear All / dropdown change -> `FilterBar` writes to the Zustand `filterStore`
+3. `filterStore` initializes from URL `?filters=` on creation; `useUrlFilters` writes store changes back to URL (one-way sync)
+4. `BorrowerTableProvider` re-fetches from `POST /borrowers/search` via `useBorrowers` whenever `appliedFilters` changes
 
 ## Key Files
 
@@ -55,9 +55,13 @@ No client-side tests yet. Server and shared tests use Vitest.
 | Domain types, schemas, field metadata | `packages/shared/index.ts` |
 | Filter engine (pure function) | `packages/server/filters.ts` |
 | Express API routes | `packages/server/index.ts` |
-| Zustand filter store | `packages/client/store/filterStore.ts` |
+| Zustand filter store (initializes from URL) | `packages/client/store/filterStore.ts` |
 | Filter UI components | `packages/client/components/FilterBar.tsx`, `FilterRow.tsx` |
-| URL sync hook | `packages/client/hooks/useUrlFilters.ts` |
+| Borrower table + expandable rows | `packages/client/components/BorrowerTable.tsx`, `BorrowerRow.tsx`, `BorrowerDetail.tsx` |
+| Grid column config, cell formatting | `packages/client/borrowerGrid.ts` |
+| Table + row context providers | `packages/client/context/BorrowerTableContext.tsx`, `BorrowerRowContext.tsx` |
+| Data fetching hook | `packages/client/hooks/useBorrowers.ts` |
+| URL sync hook (write-only) | `packages/client/hooks/useUrlFilters.ts` |
 | API client | `packages/client/api.ts` |
 | UI string constants | `packages/client/labels.ts` |
 
@@ -68,4 +72,6 @@ Adding a new filter operator (e.g., `gte`) requires changes in exactly two place
 2. `server/filters.ts` — add a case to the relevant type handler
 
 Adding a new filterable field requires updating `FilterableField`, `BorrowerFields`, and
-optionally `BorrowerFieldName` in `shared/index.ts`.
+optionally `BorrowerFieldName` in `shared/index.ts`. For fields with constrained values,
+add `allowedValues` to the `FieldMeta` entry — the filter UI will render a dropdown
+automatically, and `validateFilterValues` will enforce them server-side.
