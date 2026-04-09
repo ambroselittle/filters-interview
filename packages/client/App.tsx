@@ -1,114 +1,21 @@
-import { useState, useEffect } from "react";
-import { BorrowerFields, parseStoredDate, type Borrower, type FieldMeta, type FilterableField, type FieldType } from "shared";
-import { useFilterStore } from "./store/filterStore";
 import { useUrlFilters } from "./hooks/useUrlFilters";
-import { searchBorrowers } from "./api";
+import { BorrowerTableProvider } from "./context/BorrowerTableContext";
 import { FilterBar } from "./components/FilterBar";
-import { UI } from "./labels";
+import { BorrowerTable } from "./components/BorrowerTable";
 
 import "./style.css";
 
-const numberFmt = new Intl.NumberFormat("en-US");
-const dateFmt = new Intl.DateTimeFormat("en-US", { dateStyle: "short" });
-
-function formatCell(value: string | number, type: FieldType): string {
-  if (type === "number" && typeof value === "number") return numberFmt.format(value);
-  if (type === "date" && typeof value === "string") {
-    const date = parseStoredDate(value);
-    return isNaN(date.getTime()) ? value : dateFmt.format(date);
-  }
-  return String(value);
-}
-
-const fieldEntries = Object.entries(BorrowerFields) as Array<[FilterableField, FieldMeta]>;
-
 function App() {
-  const { appliedFilters, setAppliedFilters } = useFilterStore();
-  const [borrowers, setBorrowers] = useState<Borrower[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   useUrlFilters();
 
-  useEffect(() => {
-    const controller = new AbortController();
-    setLoading(true);
-    setError(null);
-
-    searchBorrowers(appliedFilters, controller.signal)
-      .then(setBorrowers)
-      .catch((err) => {
-        if (controller.signal.aborted) return;
-        console.error("Failed to fetch borrowers:", err);
-        setError(UI.errorMessage);
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
-      });
-
-    return () => controller.abort();
-  }, [appliedFilters]);
-
-  const handleRetry = () => {
-    // Trigger a re-fetch by re-setting the same filters
-    setAppliedFilters([...appliedFilters]);
-  };
-
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Borrowers</h1>
-      <FilterBar />
-
-      {error ? (
-        <div className="py-16 text-center text-red-600">
-          <p className="mb-2">{error}</p>
-          <button type="button" onClick={handleRetry} className="text-blue-600 hover:underline text-sm">
-            {UI.retry}
-          </button>
-        </div>
-      ) : loading ? (
-        <div className="py-16 text-center text-gray-400">
-          <p>{UI.loading}</p>
-        </div>
-      ) : appliedFilters.length > 0 && borrowers.length === 0 ? (
-        <div className="py-16 text-center text-gray-500">
-          <p className="mb-1">{UI.noResults}</p>
-          <button
-            type="button"
-            onClick={() => setAppliedFilters([])}
-            className="text-blue-600 hover:underline text-sm"
-          >
-            {UI.noResultsCta}
-          </button>
-        </div>
-      ) : (
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr>
-              {fieldEntries.map(([col, meta]) => (
-                <th
-                  key={col}
-                  className="border border-gray-300 px-2 py-1 text-left bg-gray-50 font-medium whitespace-nowrap"
-                >
-                  {meta.label}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {borrowers.map((borrower, i) => (
-              <tr key={borrower.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                {fieldEntries.map(([col, meta]) => (
-                  <td key={col} className="border border-gray-300 px-2 py-1 whitespace-nowrap">
-                    {formatCell(borrower[col], meta.type)}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
+    <BorrowerTableProvider>
+      <div className="p-4">
+        <h1 className="text-2xl font-bold mb-4">Borrowers</h1>
+        <FilterBar />
+        <BorrowerTable />
+      </div>
+    </BorrowerTableProvider>
   );
 }
 

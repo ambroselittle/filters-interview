@@ -7,28 +7,38 @@ type FilterFormValues = { conditions: FilterCondition[] };
 type FilterRowProps = {
   index: number;
   onRemove: () => void;
+  onAutoApply: () => void;
 };
 
 const fieldOptions = Object.entries(BorrowerFields) as Array<[FilterableField, FieldMeta]>;
 
-export function FilterRow({ index, onRemove }: FilterRowProps) {
+export function FilterRow({ index, onRemove, onAutoApply }: FilterRowProps) {
   const { control, setValue, watch } = useFormContext<FilterFormValues>();
 
   const currentField = watch(`conditions.${index}.field`) as FilterableField;
-  const fieldType = BorrowerFields[currentField]?.type ?? "string";
+  const currentOperator = watch(`conditions.${index}.operator`);
+  const fieldMeta = BorrowerFields[currentField];
+  const fieldType = fieldMeta?.type ?? "string";
   const validOperators = OperatorsByType[fieldType];
+  const showDropdown = fieldMeta?.allowedValues && currentOperator === "is";
 
   function handleFieldChange(
     newField: FilterableField,
     onChange: (value: FilterableField) => void,
   ) {
-    const newType = BorrowerFields[newField].type;
-    const currentOperator = watch(`conditions.${index}.operator`);
+    const oldType = fieldType;
+    const newMeta = BorrowerFields[newField];
+    const newType = newMeta.type;
     onChange(newField);
     if (!OperatorsByType[newType].includes(currentOperator)) {
       setValue(`conditions.${index}.operator`, OperatorsByType[newType][0]);
     }
-    setValue(`conditions.${index}.value`, "");
+    // Preserve the value when switching between plain string fields;
+    // clear it for type changes or when the new field has constrained values.
+    if (oldType !== "string" || newType !== "string" || newMeta.allowedValues) {
+      setValue(`conditions.${index}.value`, "");
+    }
+    onAutoApply();
   }
 
   return (
@@ -61,7 +71,14 @@ export function FilterRow({ index, onRemove }: FilterRowProps) {
         control={control}
         name={`conditions.${index}.operator`}
         render={({ field }) => (
-          <select {...field} className="border border-gray-300 rounded px-2 py-1 text-sm">
+          <select
+            {...field}
+            onChange={(e) => {
+              field.onChange(e);
+              onAutoApply();
+            }}
+            className="border border-gray-300 rounded px-2 py-1 text-sm"
+          >
             {validOperators.map((op) => (
               <option key={op} value={op}>
                 {OperatorLabels[op]}
@@ -74,14 +91,32 @@ export function FilterRow({ index, onRemove }: FilterRowProps) {
       <Controller
         control={control}
         name={`conditions.${index}.value`}
-        render={({ field }) => (
-          <input
-            {...field}
-            type={fieldType === "number" ? "number" : fieldType === "date" ? "date" : "text"}
-            placeholder={fieldType === "date" ? undefined : "Value"}
-            className="border border-gray-300 rounded px-2 py-1 text-sm min-w-32"
-          />
-        )}
+        render={({ field }) =>
+          showDropdown ? (
+            <select
+              {...field}
+              onChange={(e) => {
+                field.onChange(e);
+                if (e.target.value) onAutoApply();
+              }}
+              className="border border-gray-300 rounded px-2 py-1 text-sm min-w-32"
+            >
+              <option value="">Select…</option>
+              {fieldMeta.allowedValues!.map((v) => (
+                <option key={v} value={v}>
+                  {v.charAt(0).toUpperCase() + v.slice(1)}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              {...field}
+              type={fieldType === "number" ? "number" : fieldType === "date" ? "date" : "text"}
+              placeholder={fieldType === "date" ? undefined : "Value"}
+              className="border border-gray-300 rounded px-2 py-1 text-sm min-w-32"
+            />
+          )
+        }
       />
 
       <button

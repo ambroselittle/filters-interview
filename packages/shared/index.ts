@@ -70,6 +70,7 @@ export type SearchRequest = z.infer<typeof SearchRequestSchema>;
 export type FieldMeta = {
   label: string;
   type: FieldType;
+  allowedValues?: readonly string[];
 };
 
 /** Named constants for each borrower field — use instead of magic strings.
@@ -96,7 +97,7 @@ export const BorrowerFields: Record<FilterableField, FieldMeta> = {
   lastName: { label: "Last Name", type: "string" },
   dateOfBirth: { label: "Date of Birth", type: "date" },
   creditScore: { label: "Credit Score", type: "number" },
-  maritalStatus: { label: "Marital Status", type: "string" },
+  maritalStatus: { label: "Marital Status", type: "string", allowedValues: MaritalStatuses },
   w2Income: { label: "W2 Income", type: "number" },
   emailAddress: { label: "Email Address", type: "string" },
   homePhone: { label: "Home Phone", type: "string" },
@@ -123,6 +124,46 @@ export const OperatorsByType: Record<FieldType, FilterOperator[]> = {
 export function parseStoredDate(dateStr: string): Date {
   const [month, day, year] = dateStr.split("/").map(Number);
   return new Date(year, month - 1, day);
+}
+
+// ---------------------------------------------------------------------------
+// Filter value validation
+// ---------------------------------------------------------------------------
+
+export type FilterValidationError = {
+  field: FilterableField;
+  message: string;
+};
+
+/** Validate that each filter condition's value is compatible with its field type.
+ *  Returns an empty array if all conditions are valid. */
+export function validateFilterValues(conditions: FilterCondition[]): FilterValidationError[] {
+  const errors: FilterValidationError[] = [];
+
+  for (const { field, operator, value } of conditions) {
+    const meta = BorrowerFields[field];
+    if (!meta) continue;
+
+    if (meta.type === "number") {
+      if (value === "" || isNaN(Number(value))) {
+        errors.push({ field, message: `"${value}" is not a valid number for ${meta.label}` });
+      }
+    } else if (meta.type === "date") {
+      const d = new Date(value + "T00:00:00");
+      if (isNaN(d.getTime())) {
+        errors.push({ field, message: `"${value}" is not a valid date for ${meta.label}` });
+      }
+    } else if (meta.allowedValues && operator === "is" && value !== "") {
+      if (!meta.allowedValues.includes(value)) {
+        errors.push({
+          field,
+          message: `"${value}" is not a valid value for ${meta.label}. Allowed: ${meta.allowedValues.join(", ")}`,
+        });
+      }
+    }
+  }
+
+  return errors;
 }
 
 // ---------------------------------------------------------------------------

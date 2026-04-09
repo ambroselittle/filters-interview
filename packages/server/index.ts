@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { SearchRequestSchema } from "shared";
+import { SearchRequestSchema, validateFilterValues } from "shared";
 import { PrismaClient } from "@prisma/client";
 import { buildPrismaWhere } from "./prismaFilters.js";
 
@@ -32,6 +32,11 @@ app.post("/borrowers/search", async (req: Request, res: Response) => {
   const parsed = SearchRequestSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid filter request", details: parsed.error.flatten() });
+    return;
+  }
+  const valueErrors = validateFilterValues(parsed.data.filters);
+  if (valueErrors.length > 0) {
+    res.status(400).json({ error: "Invalid filter values", details: valueErrors });
     return;
   }
   const borrowers = await prisma.borrower.findMany({
