@@ -19,8 +19,9 @@ export function FilterRow({ index, onRemove, onAutoApply }: FilterRowProps) {
   const currentOperator = watch(`conditions.${index}.operator`);
   const fieldMeta = BorrowerFields[currentField];
   const fieldType = fieldMeta?.type ?? "string";
+  const hasAllowedValues = !!fieldMeta?.allowedValues;
   const validOperators = OperatorsByType[fieldType];
-  const showDropdown = fieldMeta?.allowedValues && currentOperator === "is";
+  const showDropdown = hasAllowedValues && currentOperator === "is";
 
   function handleFieldChange(
     newField: FilterableField,
@@ -30,12 +31,15 @@ export function FilterRow({ index, onRemove, onAutoApply }: FilterRowProps) {
     const newMeta = BorrowerFields[newField];
     const newType = newMeta.type;
     onChange(newField);
-    if (!OperatorsByType[newType].includes(currentOperator)) {
+    if (newMeta.allowedValues) {
+      setValue(`conditions.${index}.operator`, "is");
+    } else if (!OperatorsByType[newType].includes(currentOperator)) {
       setValue(`conditions.${index}.operator`, OperatorsByType[newType][0]);
     }
-    // Preserve the value when switching between plain string fields;
-    // clear it for type changes or when the new field has constrained values.
-    if (oldType !== "string" || newType !== "string" || newMeta.allowedValues) {
+    // Preserve value only between plain text fields (same type, no dropdowns).
+    const bothPlainText =
+      oldType === "string" && newType === "string" && !fieldMeta?.allowedValues && !newMeta.allowedValues;
+    if (!bothPlainText) {
       setValue(`conditions.${index}.value`, "");
     }
     onAutoApply();
@@ -67,26 +71,32 @@ export function FilterRow({ index, onRemove, onAutoApply }: FilterRowProps) {
         )}
       />
 
-      <Controller
-        control={control}
-        name={`conditions.${index}.operator`}
-        render={({ field }) => (
-          <select
-            {...field}
-            onChange={(e) => {
-              field.onChange(e);
-              onAutoApply();
-            }}
-            className="border border-gray-300 rounded px-2 py-1 text-sm"
-          >
-            {validOperators.map((op) => (
-              <option key={op} value={op}>
-                {OperatorLabels[op]}
-              </option>
-            ))}
-          </select>
-        )}
-      />
+      {hasAllowedValues ? (
+        <span className="border border-transparent rounded px-2 py-1 text-sm">
+          {OperatorLabels.is}
+        </span>
+      ) : (
+        <Controller
+          control={control}
+          name={`conditions.${index}.operator`}
+          render={({ field }) => (
+            <select
+              {...field}
+              onChange={(e) => {
+                field.onChange(e);
+                onAutoApply();
+              }}
+              className="border border-gray-300 rounded px-2 py-1 text-sm"
+            >
+              {validOperators.map((op) => (
+                <option key={op} value={op}>
+                  {OperatorLabels[op]}
+                </option>
+              ))}
+            </select>
+          )}
+        />
+      )}
 
       <Controller
         control={control}
