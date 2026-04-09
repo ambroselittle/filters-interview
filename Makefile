@@ -1,4 +1,4 @@
-.PHONY: help init dev test build deploy clean
+.PHONY: help init dev test build deploy deploy-api deploy-web clean
 
 NVM_DIR := $(HOME)/.nvm
 NVM     := . $(NVM_DIR)/nvm.sh
@@ -50,26 +50,33 @@ build: ## Build all packages (also validates types via tsc)
 
 ## ── Deployment ────────────────────────────────────────────────────────────────
 
-deploy: ## Re-deploy updated images to AWS (requires prior /deploy-aws provisioning)
-	@[ -f .deploy-aws.json ] || { \
-		printf "\033[31m✗ .deploy-aws.json not found.\033[0m\n"; \
-		printf "  Run '/deploy-aws' in Claude Code first to provision AWS resources,\n"; \
-		printf "  then use 'make deploy' for subsequent updates.\n"; \
-		exit 1; \
-	}
+DEPLOY_CHECK = @[ -f .deploy-aws.json ] || { \
+	printf "\033[31m✗ .deploy-aws.json not found.\033[0m\n"; \
+	printf "  Run '/deploy-aws' in Claude Code first to provision AWS resources,\n"; \
+	printf "  then use 'make deploy' for subsequent updates.\n"; \
+	exit 1; \
+}
+
+deploy: deploy-api deploy-web ## Re-deploy both services to AWS
+	@printf "\n\033[32m✓ Deployed! Check .deploy-aws.json for live URLs.\033[0m\n\n"
+
+deploy-api: ## Build, push, and deploy only the API service
+	$(DEPLOY_CHECK)
 	@printf "\033[36m→ Building and pushing api image...\033[0m\n"
 	@uv run --project ~/.claude/skills/deploy-aws \
 		python ~/.claude/skills/deploy-aws/scripts/build-push.py --service api
-	@printf "\033[36m→ Building and pushing web image...\033[0m\n"
-	@uv run --project ~/.claude/skills/deploy-aws \
-		python ~/.claude/skills/deploy-aws/scripts/build-push.py --service web
 	@printf "\033[36m→ Deploying api to App Runner...\033[0m\n"
 	@uv run --project ~/.claude/skills/deploy-aws \
 		python ~/.claude/skills/deploy-aws/scripts/deploy.py --service api
+
+deploy-web: ## Build, push, and deploy only the web frontend
+	$(DEPLOY_CHECK)
+	@printf "\033[36m→ Building and pushing web image...\033[0m\n"
+	@uv run --project ~/.claude/skills/deploy-aws \
+		python ~/.claude/skills/deploy-aws/scripts/build-push.py --service web
 	@printf "\033[36m→ Deploying web to App Runner...\033[0m\n"
 	@uv run --project ~/.claude/skills/deploy-aws \
 		python ~/.claude/skills/deploy-aws/scripts/deploy.py --service web
-	@printf "\n\033[32m✓ Deployed! Check .deploy-aws.json for live URLs.\033[0m\n\n"
 
 ## ── Cleanup ───────────────────────────────────────────────────────────────────
 
