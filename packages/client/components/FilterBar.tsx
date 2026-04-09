@@ -46,7 +46,10 @@ export function FilterBar() {
 
   const onApply = methods.handleSubmit((data) => {
     if (!methods.formState.isDirty) return;
+    const active = document.activeElement as HTMLElement | null;
     applyFilters(data);
+    // Restore focus after form reset so the user can keep typing
+    requestAnimationFrame(() => active?.focus());
   });
 
   const onAutoApply = () => {
