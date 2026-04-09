@@ -5,7 +5,7 @@ import { SearchRequestSchema, validateFilterValues } from "shared";
 import { PrismaClient } from "@prisma/client";
 import { buildPrismaWhere } from "./prismaFilters.js";
 
-const PORT = 1337;
+const PORT = Number(process.env.PORT) || 1337;
 
 const prisma = new PrismaClient();
 
@@ -16,6 +16,10 @@ app.use(cors());
 
 // Parse POST request body JSON.
 app.use(bodyParser.json());
+
+app.get("/api/health", (_req: Request, res: Response) => {
+  res.json({ status: "ok" });
+});
 
 app.get("/borrowers", async (_req: Request, res: Response) => {
   const borrowers = await prisma.borrower.findMany();

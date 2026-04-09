@@ -21,7 +21,8 @@ export function useBorrowers(appliedFilters: FilterCondition[]): BorrowerFetchSt
     setLoading(true);
     setError(null);
 
-    searchBorrowers(appliedFilters, controller.signal)
+    const activeFilters = appliedFilters.filter((f) => f.value !== "");
+    searchBorrowers(activeFilters, controller.signal)
       .then(setBorrowers)
       .catch((err) => {
         if (controller.signal.aborted) return;
