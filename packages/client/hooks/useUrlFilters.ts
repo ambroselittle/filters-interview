@@ -9,8 +9,9 @@ export function useUrlFilters() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (appliedFilters.length > 0) {
-      params.set("filters", serializeFilters(appliedFilters));
+    const activeFilters = appliedFilters.filter((f) => f.value !== "");
+    if (activeFilters.length > 0) {
+      params.set("filters", serializeFilters(activeFilters));
     } else {
       params.delete("filters");
     }
