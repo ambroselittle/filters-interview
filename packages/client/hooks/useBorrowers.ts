@@ -5,10 +5,13 @@ import { UI } from "../labels";
 
 export type BorrowerFetchState = {
   borrowers: Borrower[];
+  /** True when a fetch is in-flight and has been pending longer than the delay threshold. */
   loading: boolean;
   error: string | null;
   retry: () => void;
 };
+
+const LOADING_DELAY_MS = 250;
 
 /** Filters with empty values stripped, stable across renders when the data hasn't changed. */
 function useActiveFilters(appliedFilters: FilterCondition[]): FilterCondition[] {
@@ -36,7 +39,10 @@ export function useBorrowers(appliedFilters: FilterCondition[]): BorrowerFetchSt
 
   useEffect(() => {
     const controller = new AbortController();
-    setLoading(true);
+    let loadingTimer: ReturnType<typeof setTimeout> | undefined;
+
+    // Delay the loading indicator so fast responses don't flash
+    loadingTimer = setTimeout(() => setLoading(true), LOADING_DELAY_MS);
     setError(null);
 
     searchBorrowers(activeFilters, controller.signal)
@@ -47,10 +53,16 @@ export function useBorrowers(appliedFilters: FilterCondition[]): BorrowerFetchSt
         setError(UI.errorMessage);
       })
       .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
+        if (!controller.signal.aborted) {
+          clearTimeout(loadingTimer);
+          setLoading(false);
+        }
       });
 
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      clearTimeout(loadingTimer);
+    };
   }, [activeFilters, retryCount]);
 
   const retry = useCallback(() => setRetryCount((c) => c + 1), []);
